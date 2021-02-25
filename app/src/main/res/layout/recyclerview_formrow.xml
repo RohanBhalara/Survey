@@ -24,7 +24,33 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/etSmallAnswer"/>
+            android:id="@+id/etSmallAnswer"
+            android:hint="Write your answer here..."/>
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/etBigAnswer"
+            android:minLines="5"
+            android:gravity="top"
+            android:hint="Write your answer here..."/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rvCheckbox"/>
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rgRvRadioButton">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rvRadioButton"/>
+
+        </RadioGroup>
 
     </LinearLayout>
 
