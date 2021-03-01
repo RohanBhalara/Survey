@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MyRecyclerViewCheckboxAdapter extends RecyclerView.Adapter<MyRecyclerViewCheckboxAdapter.ViewHolder> {
@@ -17,11 +18,17 @@ public class MyRecyclerViewCheckboxAdapter extends RecyclerView.Adapter<MyRecycl
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private Context context;
+    private AnswerChange answerChange;
+    private int questionId;
+    private ArrayList<String> answerArr = new ArrayList<>();
+
     // data is passed into the constructor
-    MyRecyclerViewCheckboxAdapter(Context context, List<String> data) {
+    MyRecyclerViewCheckboxAdapter(Context context, List<String> data, AnswerChange answerChange, int questionId) {
         this.context=context;
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
+        this.answerChange = answerChange;
+        this.questionId = questionId;
     }
 
     // inflates the row layout from xml when needed
@@ -59,6 +66,15 @@ public class MyRecyclerViewCheckboxAdapter extends RecyclerView.Adapter<MyRecycl
         public void onClick(View view) {
             if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
 
+            if(myCheckBox.isChecked()){
+                answerArr.add(getItem(getAdapterPosition()));
+            }
+            else{
+                if(answerArr.contains(getItem(getAdapterPosition()))){
+                    answerArr.remove(getItem(getAdapterPosition()));
+                }
+            }
+            answerChange.onChange(questionId, null, answerArr);
             Toast.makeText(context,"The Item Clicked is: "+getItem(getAdapterPosition()),Toast.LENGTH_SHORT).show();
         }
     }
@@ -71,6 +87,8 @@ public class MyRecyclerViewCheckboxAdapter extends RecyclerView.Adapter<MyRecycl
     // allows clicks events to be caught
     void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
+
+        //answerChange.onChange(questionId, );
     }
 
     // parent activity will implement this method to respond to click events

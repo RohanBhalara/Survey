@@ -1,6 +1,9 @@
 package com.example.survey;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,13 +16,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
-public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFormRow.ViewHolder> {
+public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFormRow.ViewHolder> implements AnswerChange{
     private List<QuestionObject> mData;
     private LayoutInflater mInflater;
     private MyRecyclerViewAdapter.ItemClickListener mClickListener;
     private Context context;
+
+    private HashMap<Integer,Integer> questionIdList = new HashMap<>();
+    private ArrayList<AnswerObject> answerObjectList = new ArrayList<>();
     // data is passed into the constructor
     MyRecyclerViewFormRow(Context context, List<QuestionObject> data) {
         this.context=context;
@@ -37,6 +45,8 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        final int questionId = mData.get(position).id;
+        Log.d("STRING", "question id = "+questionId);
         String question = mData.get(position).question;
         String questionType = mData.get(position).questionType;
 
@@ -46,9 +56,69 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
         holder.etBigAnswer.setVisibility(View.GONE);
         if(questionType.equals("Small Answer")) {
             holder.etSmallAnswer.setVisibility(View.VISIBLE);
+            holder.etSmallAnswer.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    String s = charSequence.toString();
+                    AnswerObject answerObject = new AnswerObject(questionId, s, null);
+
+                    if(questionIdList.containsKey(questionId)){
+                        answerObjectList.set(questionIdList.get(questionId), answerObject);
+                        Log.d("STRING", "Small Change");
+                    }
+                    else{
+                        answerObjectList.add(answerObject);
+                        questionIdList.put(questionId, answerObjectList.indexOf(answerObject));
+                        Log.d("STRING", "Small New");
+                    }
+                    for(AnswerObject aObj : answerObjectList){
+                        Log.d("STRING", aObj.id+" "+aObj.answerString);
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            });
         }
         else if (questionType.equals("Big Answer")){
             holder.etBigAnswer.setVisibility(View.VISIBLE);
+            holder.etBigAnswer.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    String s = charSequence.toString();
+                    AnswerObject answerObject = new AnswerObject(questionId, s,null);
+
+                    if(questionIdList.containsKey(questionId)){
+                        answerObjectList.set(questionIdList.get(questionId), answerObject);
+                        Log.d("STRING", "Big Change");
+                    }
+                    else{
+                        answerObjectList.add(answerObject);
+                        questionIdList.put(questionId, answerObjectList.indexOf(answerObject));
+                        Log.d("STRING", "Big New");
+                    }
+                    for(AnswerObject aObj : answerObjectList){
+                        Log.d("STRING", aObj.id+" "+aObj.answerString);
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                }
+            });
         }
         else if (questionType.equals("Checkbox")){
             MyRecyclerViewCheckboxAdapter checkboxAdapter;
@@ -60,7 +130,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
 
             // set up the RecyclerView
             holder.recyclerViewCheckbox.setLayoutManager(new LinearLayoutManager(context));
-            checkboxAdapter = new MyRecyclerViewCheckboxAdapter(context, checkboxOptions);
+            checkboxAdapter = new MyRecyclerViewCheckboxAdapter(context, checkboxOptions,this, mData.get(position).id);
 
             holder.recyclerViewCheckbox.setAdapter(checkboxAdapter);
         }
@@ -74,7 +144,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
 
             //set up the RecyclerView
             holder.recyclerViewRadioButton.setLayoutManager(new LinearLayoutManager(context));
-            radioButtonAdapter = new MyRecyclerViewRadioButtonAdapter(context, radioButtonOptions);
+            radioButtonAdapter = new MyRecyclerViewRadioButtonAdapter(context, radioButtonOptions, this, questionId);
 
             holder.recyclerViewRadioButton.setAdapter(radioButtonAdapter);
         }
@@ -84,6 +154,41 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
     @Override
     public int getItemCount() {
         return mData.size();
+    }
+
+    @Override
+    public void onChange(int questionId,String ans, ArrayList<String> ansArr) {
+        String strArr[] = new String[10];
+        AnswerObject answerObject;
+
+        if(ansArr != null){
+            int i = -1;
+            for(String str : ansArr) {
+                i++;
+                strArr[i] = str;
+            }
+        }
+
+        if(ans == null){
+            answerObject = new AnswerObject(questionId, null, strArr);
+        }
+        else{
+            answerObject = new AnswerObject(questionId, ans, null);
+        }
+
+        if(questionIdList.containsKey(questionId)){
+            answerObjectList.set(questionIdList.get(questionId), answerObject);
+            Log.d("STRING", "CR Change");
+        }
+        else{
+            answerObjectList.add(answerObject);
+            questionIdList.put(questionId, answerObjectList.indexOf(answerObject));
+            Log.d("STRING", "CR New");
+        }
+
+        for(AnswerObject aObj : answerObjectList){
+            Log.d("STRING", aObj.id+" "+aObj.answerString+" "+Arrays.toString(aObj.answer));
+        }
     }
 
 

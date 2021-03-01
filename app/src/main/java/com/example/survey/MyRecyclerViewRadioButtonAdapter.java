@@ -17,12 +17,16 @@ public class MyRecyclerViewRadioButtonAdapter extends RecyclerView.Adapter<MyRec
     private ItemClickListener mClickListener;
     private Context context;
     private int lastSelectedPosition = -1;
+    private AnswerChange answerChange;
+    private int questionId;
 
     // data is passed into the constructor
-    MyRecyclerViewRadioButtonAdapter(Context context, List<String> data) {
+    MyRecyclerViewRadioButtonAdapter(Context context, List<String> data, AnswerChange answerChange, int questionId) {
         this.context=context;
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
+        this.answerChange = answerChange;
+        this.questionId = questionId;
     }
 
     // inflates the row layout from xml when needed
@@ -64,6 +68,7 @@ public class MyRecyclerViewRadioButtonAdapter extends RecyclerView.Adapter<MyRec
 
             lastSelectedPosition = getAdapterPosition();
 
+            answerChange.onChange(questionId, getItem(getAdapterPosition()), null);
             Toast.makeText(context,"The Item Clicked is: "+getItem(getAdapterPosition()),Toast.LENGTH_SHORT).show();
 
             notifyDataSetChanged();

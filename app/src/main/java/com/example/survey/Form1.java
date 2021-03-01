@@ -37,19 +37,19 @@ public class Form1 extends AppCompatActivity {
         ArrayList<QuestionObject> questionObjects = new ArrayList<>();
 
         QuestionObject qObj1 = new QuestionObject(1,"Question 1", "Small Answer", null);
-        QuestionObject qObj2 = new QuestionObject(1,"Question 2", "Big Answer", null);
+        QuestionObject qObj2 = new QuestionObject(2,"Question 2", "Big Answer", null);
         String[] str = new String[2];
         str[0] = "Java";
         str[1] = "C++";
-        QuestionObject qObj3 = new QuestionObject(2,"Question 3", "Checkbox", str);
+        QuestionObject qObj3 = new QuestionObject(3,"Question 3", "Checkbox", str);
         String[] str2 = new String[2];
         str2[0] = "True";
         str2[1] = "False";
-        QuestionObject qObj4 = new QuestionObject(2,"Question 4", "Radio Button", str2);
+        QuestionObject qObj4 = new QuestionObject(4,"Question 4", "Radio Button", str2);
         String[] str3 = new String[2];
         str3[0] = "True";
         str3[1] = "False";
-        QuestionObject qObj5 = new QuestionObject(2,"Question 5", "Radio Button", str3);
+        QuestionObject qObj5 = new QuestionObject(5,"Question 5", "Radio Button", str3);
 
         questionObjects.add(qObj1);
         questionObjects.add(qObj2);
