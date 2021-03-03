@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -29,18 +30,24 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class Form1 extends AppCompatActivity implements FilePick{
 
+    private static final String TAG = "DEBUG";
     private static final int FILE_PICK_REQ_CODe = 3135;
     TextView txtHeading;
     Button btnSave;
     MyRecyclerViewFormRow adapter;
     Button btnUpload;
     private static int currentFilPickIndex = -1;
+    ArrayList<AnswerObject> answerObjectList;
 
     private static final int FILE_SELECT_CODE = 0;
     @Override
@@ -82,6 +89,7 @@ public class Form1 extends AppCompatActivity implements FilePick{
         questionObjects.add(qObj5);
         questionObjects.add(qObj6);
 
+        checkPermission(WRITE_EXTERNAL_STORAGE, 101);
         // set up the RecyclerView
         final RecyclerView recyclerView = findViewById(R.id.rvQuestions);
         recyclerView.setLayoutManager(new LinearLayoutManager(Form1.this));
@@ -96,6 +104,12 @@ public class Form1 extends AppCompatActivity implements FilePick{
             }
         });
 
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                answerObjectList = adapter.getAnswerObjectList();
+            }
+        });
     }
 
     @Override
@@ -119,7 +133,7 @@ public class Form1 extends AppCompatActivity implements FilePick{
     {
         InputStream inputStream = null;
         OutputStream outputStream = null;
-        Log.d("DEBUG",String.valueOf(isPermissionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)));
+        Log.d("DEBUG",String.valueOf(isPermissionGranted(WRITE_EXTERNAL_STORAGE)));
         Log.d("DEBUG",String.valueOf(isPermissionGranted(Manifest.permission.READ_EXTERNAL_STORAGE)));
         try
         {

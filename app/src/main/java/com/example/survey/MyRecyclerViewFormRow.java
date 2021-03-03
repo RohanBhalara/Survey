@@ -45,7 +45,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
     private Context context;
 
     private HashMap<Integer, Integer> questionIdList = new HashMap<>();
-    private ArrayList<AnswerObject> answerObjectList = new ArrayList<>();
+    ArrayList<AnswerObject> answerObjectList = new ArrayList<>();
     private FilePick filePick;
 
     private static final int FILE_SELECT_CODE = 0;
@@ -168,6 +168,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
 
             holder.recyclerViewRadioButton.setAdapter(radioButtonAdapter);
         } else if (questionType == "Upload") {
+
             holder.btnUpload.setVisibility(View.VISIBLE);
             holder.btnUpload.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -220,9 +221,6 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
     @Override
     public void fileResult(Uri uri, int index) {
         answerObjectList.add(new AnswerObject(index,uri));
-        for (AnswerObject aObj : answerObjectList) {
-            Log.d("STRING", aObj.id + " " + aObj.fileAnser.toString());
-        }
     }
 
 
@@ -275,4 +273,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
         return super.getItemViewType(position);
     }
 
+    public ArrayList<AnswerObject> getAnswerObjectList(){
+        return this.answerObjectList;
+    }
 }
