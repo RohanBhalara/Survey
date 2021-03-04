@@ -1,5 +1,6 @@
 package com.example.survey;
 
+import androidx.annotation.IntegerRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -35,6 +36,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
@@ -45,23 +47,24 @@ public class Form1 extends AppCompatActivity implements FilePick{
     TextView txtHeading;
     Button btnSave;
     MyRecyclerViewFormRow adapter;
-    Button btnUpload;
     private static int currentFilPickIndex = -1;
     ArrayList<AnswerObject> answerObjectList;
+    DBHelper db;
 
-    private static final int FILE_SELECT_CODE = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form1);
 
+        db = new DBHelper(Form1.this);
         txtHeading = (TextView)findViewById(R.id.txtHeading);
         btnSave = (Button)findViewById(R.id.btnSave);
-        btnUpload = (Button)findViewById(R.id.btnUpload);
 
         Intent intent = getIntent();
-        String formNumber = intent.getStringExtra("formNumber");
-        txtHeading.setText(formNumber);
+        final String formNumber = intent.getStringExtra("formNumber");
+        final String formName = intent.getStringExtra("formName");
+        txtHeading.setText(formName);
+        final int fNumber = Integer.parseInt(formNumber);
 
         // data to populate the RecyclerView with
         ArrayList<QuestionObject> questionObjects = new ArrayList<>();
@@ -100,14 +103,34 @@ public class Form1 extends AppCompatActivity implements FilePick{
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-            }
-        });
-
-        btnUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 answerObjectList = adapter.getAnswerObjectList();
+                Collections.sort(answerObjectList, AnswerObject.QuestionId);
+                String fileName = "file";
+                int i = 1;
+                for(AnswerObject aObj : answerObjectList){
+                    Log.d(TAG, "id = "+aObj.getId());
+                    if(aObj.fileAnser != null){
+                        fileName = fileName + "(" +i+ ")";
+                        copyFileFromUri(Form1.this, fileName, aObj.fileAnser);
+                        i++;
+                    }
+                }
+
+                String fn = db.getFormData(fNumber);
+                if(fn == null){
+                    if(db.insertFormData(fNumber, answerObjectList.toString())){
+                        Toast.makeText(getApplicationContext(), "Inset done", Toast.LENGTH_SHORT).show();
+                    } else{
+                        Toast.makeText(getApplicationContext(), "Insert not done", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else{
+                    if(db.updateFormData(fNumber, answerObjectList.toString())){
+                        Toast.makeText(getApplicationContext(), "Update done", Toast.LENGTH_SHORT).show();
+                    } else{
+                        Toast.makeText(getApplicationContext(), "Update not done", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
         });
     }
@@ -121,7 +144,6 @@ public class Form1 extends AppCompatActivity implements FilePick{
                     Uri uri = data.getData();
                     Log.d("STRING", "File Uri: " + uri.toString());
 
-                    //Log.d("STRING","COPY = "+copyFileFromUri(this, uri));
                     adapter.fileResult(uri,currentFilPickIndex);
                 }
                 break;
@@ -129,7 +151,7 @@ public class Form1 extends AppCompatActivity implements FilePick{
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public boolean copyFileFromUri(Context context, Uri fileUri)
+    public boolean copyFileFromUri(Context context, String fileName, Uri fileUri)
     {
         InputStream inputStream = null;
         OutputStream outputStream = null;
@@ -147,7 +169,7 @@ public class Form1 extends AppCompatActivity implements FilePick{
                 saveDirectory.mkdirs();
 
             //Creating file
-            File yourFile = new File( getFilesDir(),"score.txt");
+            File yourFile = new File( getFilesDir(),fileName+".txt");
             yourFile.createNewFile();
 
 

@@ -173,7 +173,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
             holder.btnUpload.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    filePick.showFilePicker(position);
+                    filePick.showFilePicker(questionId);
                 }
             });
         }

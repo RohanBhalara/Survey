@@ -2,6 +2,8 @@ package com.example.survey;
 
 import android.net.Uri;
 
+import java.util.Comparator;
+
 public class AnswerObject {
     int id;
     String answerString;
@@ -18,4 +20,21 @@ public class AnswerObject {
         this.id = id;
         this.fileAnser = fileAnser;
     }
+
+    public int getId(){
+        return id;
+    }
+    public void setId(int id){
+        this.id = id;
+    }
+
+    /*Comparator for sorting the list by roll no*/
+    public static Comparator<AnswerObject> QuestionId = new Comparator<AnswerObject>() {
+
+        public int compare(AnswerObject a1, AnswerObject a2) {
+            int id1 = a1.getId();
+            int id2 = a2.getId();
+
+            return id1-id2;
+        }};
 }

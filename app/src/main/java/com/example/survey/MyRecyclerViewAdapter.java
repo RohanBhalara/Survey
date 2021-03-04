@@ -14,12 +14,12 @@ import java.util.List;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
 
-    private List<String> mData;
+    private List<FormObject> mData;
     private LayoutInflater mInflater;
     private ItemClickListener mClickListener;
     private Context context;
     // data is passed into the constructor
-    MyRecyclerViewAdapter(Context context, List<String> data) {
+    MyRecyclerViewAdapter(Context context, List<FormObject> data) {
         this.context=context;
         this.mInflater = LayoutInflater.from(context);
         this.mData = data;
@@ -35,8 +35,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     // binds the data to the TextView in each row
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        String animal = mData.get(position);
-        holder.myTextView.setText(animal);
+        String formName = mData.get(position).formName;
+        holder.myTextView.setText(formName);
     }
 
     // total number of rows
@@ -52,7 +52,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
         ViewHolder(View itemView) {
             super(itemView);
-            myTextView = itemView.findViewById(R.id.tvAnimalName);
+            myTextView = itemView.findViewById(R.id.txtFormName);
             itemView.setOnClickListener(this);
         }
 
@@ -60,16 +60,17 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         public void onClick(View view) {
             if (mClickListener != null) mClickListener.onItemClick(view, getAdapterPosition());
 
-            Toast.makeText(context,"The Item Clicked is: "+getItem(getAdapterPosition()),Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,"The Item Clicked is: "+getItem(getAdapterPosition())+" = "+mData.get(getAdapterPosition()).formId,Toast.LENGTH_SHORT).show();
             Intent intent =  new Intent(context, Form1.class);
-            intent.putExtra("formNumber", getItem(getAdapterPosition()));
+            intent.putExtra("formNumber", String.valueOf(mData.get(getAdapterPosition()).formId));
+            intent.putExtra("formName", getItem(getAdapterPosition()));
             context.startActivity(intent);
         }
     }
 
     // convenience method for getting data at click position
     String getItem(int id) {
-        return mData.get(id);
+        return mData.get(id).formName;
     }
 
     // allows clicks events to be caught
