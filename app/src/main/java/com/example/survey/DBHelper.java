@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import static android.content.ContentValues.TAG;
+
 public class DBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "SurveyDatabase";
@@ -18,13 +20,13 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE forms (id integer, formsList text)");
-        db.execSQL("CREATE TABLE formData (formNumber integer, formdata text)");
+        db.execSQL("CREATE TABLE formsData (formNumber integer, formdata text)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS forms");
-        db.execSQL("DROP TABLE IF EXISTS formData");
+        db.execSQL("DROP TABLE IF EXISTS formsData");
         onCreate(db);
     }
 
@@ -60,19 +62,19 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean insertFormData(int formNumber, String formData){
+    public boolean insertFormData(int formNumber, String formdata){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("formNumber", formNumber);
-        contentValues.put("formdata", formData);
-        db.insert("formData", null, contentValues);
+        contentValues.put("formdata", formdata);
+        db.insert("formsData", null, contentValues);
         return true;
     }
 
     public String getFormData(int formNumber){
         SQLiteDatabase db = this.getReadableDatabase();
         try {
-            Cursor cursor = db.rawQuery("SELECT * FROM formData where formNumber = " + formNumber, null);
+            Cursor cursor = db.rawQuery("SELECT * FROM formsData where formNumber = " + formNumber, null);
             if((cursor != null) && (cursor.getCount() > 0)){
                 cursor.moveToFirst();
                 String formAllData = cursor.getString(1);
@@ -95,7 +97,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put("formNumber", formNumber);
         contentValues.put("formdata", formData);
-        db.update("formData",contentValues,"formNumber = ?", new String[] {Integer.toString(formNumber)});
+        db.update("formsData",contentValues,"formNumber = ?", new String[] {Integer.toString(formNumber)});
         return true;
     }
 }

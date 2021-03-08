@@ -2,6 +2,7 @@ package com.example.survey;
 
 import android.net.Uri;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 public class AnswerObject {
@@ -9,6 +10,7 @@ public class AnswerObject {
     String answerString;
     String answer[];
     Uri fileAnser;
+    ArrayList<MultiEditTextObject> multiAnswer;
 
     AnswerObject(int id, String answerString, String ans[]){
         this.id = id;
@@ -19,6 +21,10 @@ public class AnswerObject {
     AnswerObject(int id,Uri fileAnser){
         this.id = id;
         this.fileAnser = fileAnser;
+    }
+
+    AnswerObject(int id, ArrayList<MultiEditTextObject> multiAnswer){
+        this.multiAnswer = multiAnswer;
     }
 
     public int getId(){

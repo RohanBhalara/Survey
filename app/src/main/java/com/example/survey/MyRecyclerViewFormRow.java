@@ -1,12 +1,6 @@
 package com.example.survey;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,31 +8,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static android.app.Activity.RESULT_OK;
-import static androidx.core.app.ActivityCompat.startActivityForResult;
-
-public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFormRow.ViewHolder> implements AnswerChange,FileResponseListen {
+public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFormRow.ViewHolder> implements AnswerChange,FileResponseListen, AdapterView.OnItemSelectedListener {
     private List<QuestionObject> mData;
     private LayoutInflater mInflater;
     private MyRecyclerViewAdapter.ItemClickListener mClickListener;
@@ -46,7 +32,10 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
 
     private HashMap<Integer, Integer> questionIdList = new HashMap<>();
     ArrayList<AnswerObject> answerObjectList = new ArrayList<>();
+    ArrayList<String> sectionList = new ArrayList<>();
     private FilePick filePick;
+    ArrayList<String> options = new ArrayList<>();
+    private int spinnerQuestionId;
 
     private static final int FILE_SELECT_CODE = 0;
 
@@ -72,12 +61,19 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
         Log.d("STRING", "question id = " + questionId);
         String question = mData.get(position).question;
         String questionType = mData.get(position).questionType;
+        String section = mData.get(position).section;
+        if(!sectionList.contains(section)){
+            holder.textViewSection.setText(section);
+            holder.textViewSection.setVisibility(View.VISIBLE);
+            sectionList.add(section);
+        }
 
         holder.myTextView.setText(question);
 
         holder.etSmallAnswer.setVisibility(View.GONE);
         holder.etBigAnswer.setVisibility(View.GONE);
         holder.btnUpload.setVisibility(View.GONE);
+        holder.spinnerAnswer.setVisibility(View.GONE);
 
         if (questionType.equals("Small Answer")) {
             holder.etSmallAnswer.setVisibility(View.VISIBLE);
@@ -167,8 +163,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
             radioButtonAdapter = new MyRecyclerViewRadioButtonAdapter(context, radioButtonOptions, this, questionId);
 
             holder.recyclerViewRadioButton.setAdapter(radioButtonAdapter);
-        } else if (questionType == "Upload") {
-
+        } else if (questionType.equals("Upload")) {
             holder.btnUpload.setVisibility(View.VISIBLE);
             holder.btnUpload.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -176,6 +171,35 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
                     filePick.showFilePicker(questionId);
                 }
             });
+        }
+        else if(questionType.equals("Multiple Textbox")){
+            MyRecyclerViewEditText editTextAdapter;
+            ArrayList<String> editTexts = new ArrayList<>();
+
+            for (int i = 0; i < 5; i++) {
+                editTexts.add("");
+            }
+
+            // set up the RecyclerView
+            holder.recyclerViewEditText.setLayoutManager(new LinearLayoutManager(context));
+            editTextAdapter = new MyRecyclerViewEditText(context, editTexts, this, mData.get(position).id);
+
+            holder.recyclerViewEditText.setAdapter(editTextAdapter);
+        }
+        else if(questionType.equals("Spinner")){
+            options.add("Select...");
+            for (String str : mData.get(position).options) {
+                options.add(str);
+            }
+
+            spinnerQuestionId = questionId;
+            ArrayAdapter adapter = new ArrayAdapter(context, R.layout.support_simple_spinner_dropdown_item, options);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+            holder.spinnerAnswer.setAdapter(adapter);
+            holder.spinnerAnswer.setVisibility(View.VISIBLE);
+            holder.spinnerAnswer.setOnItemSelectedListener(this);
+
+
         }
     }
 
@@ -218,29 +242,79 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
         }
     }
 
+    public void onMultiEditTextChange(int questionId, ArrayList<MultiEditTextObject> ansArr) {
+        AnswerObject answerObject;
+
+        answerObject = new AnswerObject(questionId, ansArr);
+
+        if (questionIdList.containsKey(questionId)) {
+            answerObjectList.set(questionIdList.get(questionId), answerObject);
+            Log.d("STRING", "MultiEditText Change");
+        } else {
+            answerObjectList.add(answerObject);
+            questionIdList.put(questionId, answerObjectList.indexOf(answerObject));
+            Log.d("STRING", "MultiEditText New");
+        }
+
+        for (AnswerObject aObj : answerObjectList) {
+            Log.d("STRING", aObj.id+" ");
+        }
+    }
+
     @Override
     public void fileResult(Uri uri, int index) {
         answerObjectList.add(new AnswerObject(index,uri));
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String s = options.get(position);
+        AnswerObject answerObject = new AnswerObject(spinnerQuestionId, s, null);
+
+        if (questionIdList.containsKey(spinnerQuestionId)) {
+            answerObjectList.set(questionIdList.get(spinnerQuestionId), answerObject);
+            Log.d("STRING", "Spinner Change");
+            Toast.makeText(context, "Spinner Change", Toast.LENGTH_SHORT).show();
+        } else {
+            answerObjectList.add(answerObject);
+            questionIdList.put(spinnerQuestionId, answerObjectList.indexOf(answerObject));
+            Log.d("STRING", "Spinner New");
+            Toast.makeText(context, "Spinner New", Toast.LENGTH_SHORT).show();
+        }
+        for (AnswerObject aObj : answerObjectList) {
+            Log.d("STRING", aObj.id + " " + aObj.answerString);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
 
     // stores and recycles views as they are scrolled off screen
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView textViewSection;
         TextView myTextView;
         EditText etSmallAnswer;
         EditText etBigAnswer;
         RecyclerView recyclerViewCheckbox;
         RecyclerView recyclerViewRadioButton;
         Button btnUpload;
+        RecyclerView recyclerViewEditText;
+        Spinner spinnerAnswer;
 
         ViewHolder(View itemView) {
             super(itemView);
+            textViewSection = itemView.findViewById(R.id.txtSection);
             myTextView = itemView.findViewById(R.id.questionText);
             etSmallAnswer = itemView.findViewById(R.id.etSmallAnswer);
             etBigAnswer = itemView.findViewById(R.id.etBigAnswer);
             recyclerViewCheckbox = itemView.findViewById(R.id.rvCheckbox);
             recyclerViewRadioButton = itemView.findViewById(R.id.rvRadioButton);
             btnUpload = itemView.findViewById(R.id.btnUpload);
+            recyclerViewEditText = itemView.findViewById(R.id.rvMultipleTextBox);
+            spinnerAnswer = itemView.findViewById(R.id.spinnerAnswer);
 
             itemView.setOnClickListener(this);
         }
