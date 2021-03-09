@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +37,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
     private FilePick filePick;
     ArrayList<String> options = new ArrayList<>();
     private int spinnerQuestionId;
+    private ArrayList<DependantQuestionObject> dependantQuestionList = new ArrayList<>();
 
     private static final int FILE_SELECT_CODE = 0;
 
@@ -62,6 +64,15 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
         String question = mData.get(position).question;
         String questionType = mData.get(position).questionType;
         String section = mData.get(position).section;
+        int parentQuestionId = mData.get(position).parentQuestionId;
+        String parentAnswer = mData.get(position).parentAnswer;
+
+        if(parentQuestionId != 0){
+            DependantQuestionObject dqObj = new DependantQuestionObject(position, holder);
+            dependantQuestionList.add(dqObj);
+            holder.cardViewQuestion.setVisibility(View.GONE);
+        }
+
         if(!sectionList.contains(section)){
             holder.textViewSection.setText(section);
             holder.textViewSection.setVisibility(View.VISIBLE);
@@ -198,8 +209,6 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
             holder.spinnerAnswer.setAdapter(adapter);
             holder.spinnerAnswer.setVisibility(View.VISIBLE);
             holder.spinnerAnswer.setOnItemSelectedListener(this);
-
-
         }
     }
 
@@ -226,6 +235,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
             answerObject = new AnswerObject(questionId, null, strArr);
         } else {
             answerObject = new AnswerObject(questionId, ans, null);
+            checkOptionOfParentQuestion(questionId, ans);
         }
 
         if (questionIdList.containsKey(questionId)) {
@@ -284,6 +294,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
         for (AnswerObject aObj : answerObjectList) {
             Log.d("STRING", aObj.id + " " + aObj.answerString);
         }
+        checkOptionOfParentQuestion(spinnerQuestionId, s);
     }
 
     @Override
@@ -303,6 +314,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
         Button btnUpload;
         RecyclerView recyclerViewEditText;
         Spinner spinnerAnswer;
+        CardView cardViewQuestion;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -315,6 +327,7 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
             btnUpload = itemView.findViewById(R.id.btnUpload);
             recyclerViewEditText = itemView.findViewById(R.id.rvMultipleTextBox);
             spinnerAnswer = itemView.findViewById(R.id.spinnerAnswer);
+            cardViewQuestion = itemView.findViewById(R.id.cardViewQuestion);
 
             itemView.setOnClickListener(this);
         }
@@ -349,5 +362,24 @@ public class MyRecyclerViewFormRow extends RecyclerView.Adapter<MyRecyclerViewFo
 
     public ArrayList<AnswerObject> getAnswerObjectList(){
         return this.answerObjectList;
+    }
+
+    public void checkOptionOfParentQuestion(int questionId, String ans){
+        for(DependantQuestionObject dqObj : dependantQuestionList){
+            if(mData.get(dqObj.position).parentQuestionId == questionId){
+                if(mData.get(dqObj.position).parentAnswer == ans){
+                    Log.d("String", "TRUE "+mData.get(dqObj.position).id+" -> "+questionId);
+                    dqObj.holder.cardViewQuestion.setVisibility(View.VISIBLE);
+                }
+                else{
+                    Log.d("String", "FALSE "+mData.get(dqObj.position).id+" -> "+questionId);
+                    dqObj.holder.cardViewQuestion.setVisibility(View.GONE);
+                    AnswerObject answerObject = new AnswerObject();
+                    if (questionIdList.containsKey(mData.get(dqObj.position).id)) {
+                        answerObjectList.set(questionIdList.get(mData.get(dqObj.position).id), answerObject);
+                    }
+                }
+            }
+        }
     }
 }

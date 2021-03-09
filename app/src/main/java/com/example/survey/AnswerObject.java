@@ -12,6 +12,10 @@ public class AnswerObject {
     Uri fileAnser;
     ArrayList<MultiEditTextObject> multiAnswer;
 
+    AnswerObject(){
+
+    }
+
     AnswerObject(int id, String answerString, String ans[]){
         this.id = id;
         this.answerString = answerString;

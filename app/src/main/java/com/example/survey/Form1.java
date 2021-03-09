@@ -69,26 +69,26 @@ public class Form1 extends AppCompatActivity implements FilePick{
         // data to populate the RecyclerView with
         ArrayList<QuestionObject> questionObjects = new ArrayList<>();
 
-        QuestionObject qObj1 = new QuestionObject(1,"Question 1", "Small Answer", null, "Section 1");
-        QuestionObject qObj2 = new QuestionObject(2,"Question 2", "Big Answer", null, "Section 1");
+        QuestionObject qObj1 = new QuestionObject(1,"Question 1", "Small Answer", null, "Section 1", 0, null);
+        QuestionObject qObj2 = new QuestionObject(2,"Question 2", "Big Answer", null, "Section 1", 0, null);
         String[] str = new String[2];
         str[0] = "Java";
         str[1] = "C++";
-        QuestionObject qObj3 = new QuestionObject(3,"Question 3", "Checkbox", str, "Section 1");
+        QuestionObject qObj3 = new QuestionObject(3,"Question 3", "Checkbox", str, "Section 1", 0, null);
         String[] str2 = new String[2];
         str2[0] = "True";
         str2[1] = "False";
-        QuestionObject qObj4 = new QuestionObject(4,"Question 4", "Radio Button", str2, "Section 2");
+        QuestionObject qObj4 = new QuestionObject(4,"Question 4", "Radio Button", str2, "Section 2", 0, null);
         String[] str3 = new String[2];
         str3[0] = "True";
         str3[1] = "False";
-        QuestionObject qObj5 = new QuestionObject(5,"Question 5", "Radio Button", str3, "Section 2");
-        QuestionObject qObj6 = new QuestionObject(6,"Question 6", "Upload", null, "Section 2");
-        QuestionObject qObj7 = new QuestionObject(7,"Question 7", "Multiple Textbox", null, "Section 3");
+        QuestionObject qObj5 = new QuestionObject(5,"Question 5", "Radio Button", str3, "Section 2", 0, null);
+        QuestionObject qObj6 = new QuestionObject(6,"Question 6", "Upload", null, "Section 2", 5, "True");
+        QuestionObject qObj7 = new QuestionObject(7,"Question 7", "Multiple Textbox", null, "Section 3", 8, "Java");
         String[] str4 = new String[2];
         str[0] = "Java";
         str[1] = "C++";
-        QuestionObject qObj8 = new QuestionObject(8,"Question 8", "Spinner", str, "Section 3");
+        QuestionObject qObj8 = new QuestionObject(8,"Question 8", "Spinner", str, "Section 3", 0, null);
 
         questionObjects.add(qObj1);
         questionObjects.add(qObj2);
